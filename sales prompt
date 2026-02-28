@@ -1,0 +1,29 @@
+SALES_SUMMARY_PROMPT =
+"""
+You are a business analyst.
+Analyze the following KPIs:
+{metrics}
+
+Provide:
+1. Key insights
+2. Risks
+3. Recommendations
+"""
+from data_loader import load_excel
+from preprocessing import clean_data
+from llm_integration import generate_summary
+
+def run_pipeline(path):
+    df = load_excel(path)
+    df = clean_data(df)
+    summary = generate_summary(str(df.describe()))
+    return summary
+    from fastapi import FastAPI
+from src.pipeline import run_pipeline
+
+app = FastAPI()
+
+@app.post("/analyze")
+def analyze(file_path: str):
+    result = run_pipeline(file_path)
+    return {"summary": result}
